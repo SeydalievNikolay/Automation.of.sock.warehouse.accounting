@@ -32,7 +32,7 @@ public class SocksServiceImpl implements SocksService {
                 findSocksByColorAndCottonPart(socks.getColor(),
                 socks.getCottonPart());
 
-        Socks socksInDB = null;
+        Socks socksInDB;
         if (optional.isPresent()) {
             socksInDB = optional.get();
             int oldQuantity = socksInDB.getQuantity();
@@ -60,7 +60,7 @@ public class SocksServiceImpl implements SocksService {
         Optional<Socks> socksOptional = socksRepository
                 .findSocksByColorAndCottonPart(socks.getColor(),
                         socks.getCottonPart());
-        Socks socksInDB = null;
+        Socks socksInDB;
         if (socksOptional.isPresent()) {
             socksInDB = socksOptional.get();
             if (socks.getQuantity() > socksInDB.getQuantity())
@@ -88,7 +88,6 @@ public class SocksServiceImpl implements SocksService {
             case MORE_THAN -> socksRepository.findQuantityByParamsMoreThan(color, cottonPart);
             case LESS_THAN -> socksRepository.findQuantityByParamsLessThan(color, cottonPart);
             case EQUAL -> socksRepository.findQuantityByParamsEqual(color, cottonPart);
-            default -> throw new IllegalStateException("Unexpected value: " + operation);
         };
     }
 
