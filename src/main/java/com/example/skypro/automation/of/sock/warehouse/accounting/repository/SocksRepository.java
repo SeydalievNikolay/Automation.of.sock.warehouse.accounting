@@ -11,12 +11,12 @@ import java.util.Optional;
 public interface SocksRepository extends JpaRepository<Socks, Long> {
     Optional<Socks> findSocksByColorAndCottonPart(String color, int cottonPart);
     @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart > :cottonPart")
-    Optional<String> findQuantityByParamsMoreThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    Optional<Integer> findQuantityByParamsMoreThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
     @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart < :cottonPart")
-    Optional<String> findQuantityByParamsLessThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    Optional<Integer> findQuantityByParamsLessThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
     @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart = :cottonPart")
-    Optional<String> findQuantityByParamsEqual(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    Optional<Integer> findQuantityByParamsEqual(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
 }

@@ -61,7 +61,7 @@ public class SocksServiceImpl implements SocksService {
     }
 
     @Override
-    public Optional<String> getSocksAmount(String color, Operation operation, int cottonPart) {
+    public Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart) {
         return switch (operation) {
             case MORE_THAN -> socksRepository.findQuantityByParamsMoreThan(color, cottonPart);
             case LESS_THAN -> socksRepository.findQuantityByParamsLessThan(color, cottonPart);

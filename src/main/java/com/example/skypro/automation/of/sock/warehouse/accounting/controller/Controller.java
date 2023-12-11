@@ -4,8 +4,6 @@ import com.example.skypro.automation.of.sock.warehouse.accounting.dto.SocksDto;
 import com.example.skypro.automation.of.sock.warehouse.accounting.model.Socks;
 import com.example.skypro.automation.of.sock.warehouse.accounting.service.Operation;
 import com.example.skypro.automation.of.sock.warehouse.accounting.service.SocksService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +28,11 @@ public class Controller {
     }
 
     @GetMapping()
-    public ResponseEntity<String> getSocksAmount(@RequestParam String color,
-                                                  @RequestParam Operation operation,
-                                                  @RequestParam int cottonPart){
-        Optional<String> result =  socksService.getSocksAmount(color, operation, cottonPart);
-        return new ResponseEntity<>(result.orElse(String.valueOf(0)), HttpStatus.OK);
+    public Optional<Integer> getSocksAmount(@RequestParam String color,
+                                            @RequestParam Operation operation,
+                                            @RequestParam int cottonPart){
+        return socksService.getSocksAmount(color, operation, cottonPart);
+
     }
 
     @GetMapping("/all")

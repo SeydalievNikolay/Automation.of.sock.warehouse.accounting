@@ -13,7 +13,7 @@ public interface SocksService {
 
     SocksDto outcomeOfSocks(SocksDto socksDto);
 
-    Optional<String> getSocksAmount(String color, Operation operation, int cottonPart);
+    Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart);
 
     List<Socks> getAll();
 }
