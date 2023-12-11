@@ -1,4 +1,4 @@
-package com.example.skypro.automation.of.sock.warehouse.accounting.service;
+package com.example.skypro.automation.of.sock.warehouse.accounting.mapper;
 
 import com.example.skypro.automation.of.sock.warehouse.accounting.dto.SocksDto;
 import com.example.skypro.automation.of.sock.warehouse.accounting.model.Socks;

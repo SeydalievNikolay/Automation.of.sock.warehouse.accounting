@@ -18,11 +18,4 @@ public class Socks {
     @Column(name = "cotton_part")
     private int cottonPart;
     private int quantity;
-
-
-    public Socks(String color, int cottonPart, int quantity) {
-        this.color = color;
-        this.cottonPart = cottonPart;
-        this.quantity = quantity;
-    }
 }
