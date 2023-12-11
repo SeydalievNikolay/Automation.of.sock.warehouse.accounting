@@ -1,5 +1,6 @@
 package com.example.skypro.automation.of.sock.warehouse.accounting.service;
 
+import com.example.skypro.automation.of.sock.warehouse.accounting.dto.SocksDto;
 import com.example.skypro.automation.of.sock.warehouse.accounting.model.Socks;
 import org.springframework.http.ResponseEntity;
 
@@ -8,11 +9,11 @@ import java.util.Optional;
 
 public interface SocksService {
 
-    ResponseEntity<?> incomeOfSocks(Socks socks);
+    SocksDto incomeOfSocks(SocksDto socksDto);
 
-    ResponseEntity<?> outcomeOfSocks(Socks socks);
+    SocksDto outcomeOfSocks(SocksDto socksDto);
 
-    Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart);
+    Optional<String> getSocksAmount(String color, Operation operation, int cottonPart);
 
     List<Socks> getAll();
 }

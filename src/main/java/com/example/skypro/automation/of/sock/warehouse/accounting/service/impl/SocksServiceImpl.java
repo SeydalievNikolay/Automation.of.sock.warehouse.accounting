@@ -1,11 +1,12 @@
 package com.example.skypro.automation.of.sock.warehouse.accounting.service.impl;
 
+import com.example.skypro.automation.of.sock.warehouse.accounting.dto.SocksDto;
+import com.example.skypro.automation.of.sock.warehouse.accounting.exceptions.ParametersNotFoundException;
 import com.example.skypro.automation.of.sock.warehouse.accounting.model.Socks;
 import com.example.skypro.automation.of.sock.warehouse.accounting.repository.SocksRepository;
 import com.example.skypro.automation.of.sock.warehouse.accounting.service.Operation;
+import com.example.skypro.automation.of.sock.warehouse.accounting.service.SocksMapper;
 import com.example.skypro.automation.of.sock.warehouse.accounting.service.SocksService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,73 +18,50 @@ import java.util.Optional;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class SocksServiceImpl implements SocksService {
-    @Autowired
-    private SocksRepository socksRepository;
+    private final SocksRepository socksRepository;
+    private final SocksMapper socksMapper;
+
+    public SocksServiceImpl(SocksRepository socksRepository, SocksMapper socksMapper) {
+        this.socksRepository = socksRepository;
+        this.socksMapper = socksMapper;
+    }
 
     @Override
-    public ResponseEntity<?> incomeOfSocks(Socks socks) {
-        if (socks.getColor() == null || socks.
-                getCottonPart() == null || socks.getQuantity() == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
+    public SocksDto incomeOfSocks(SocksDto socksDto) {
         Optional<Socks> optional = socksRepository.
-                findSocksByColorAndCottonPart(socks.getColor(),
-                socks.getCottonPart());
+                findSocksByColorAndCottonPart(socksDto.getColor().toLowerCase(),
+                        socksDto.getCottonPart());
 
-        Socks socksInDB;
+        Socks socks;
         if (optional.isPresent()) {
-            socksInDB = optional.get();
-            int oldQuantity = socksInDB.getQuantity();
-            socksInDB.setQuantity(oldQuantity + socks.getQuantity());
+            socks = socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().toLowerCase(),
+                    socksDto.getCottonPart()).orElseThrow();
+            socks.setQuantity(socks.getQuantity() + socksDto.getQuantity());
         } else {
-            socksInDB = new Socks(socks.getColor(), socks.getCottonPart(),
-                    socks.getQuantity());
+            socks = socksMapper.toSocksEntity(socksDto);
         }
-        socksRepository.save(socksInDB);
-
-        optional = socksRepository.findById(socksInDB.getId());
-        if (optional.isPresent() && Objects.equals(optional.get().getQuantity(),
-                socksInDB.getQuantity()))
-            return new ResponseEntity<>(HttpStatus.OK);
-        else
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        socksRepository.save(socks);
+        return socksMapper.toSocksDto(socks);
     }
 
     @Override
-    public ResponseEntity<?> outcomeOfSocks(Socks socks) {
-        if (socks.getColor() == null || socks.getCottonPart() == null
-                || socks.getQuantity() == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        Optional<Socks> socksOptional = socksRepository
-                .findSocksByColorAndCottonPart(socks.getColor(),
-                        socks.getCottonPart());
-        Socks socksInDB;
-        if (socksOptional.isPresent()) {
-            socksInDB = socksOptional.get();
-            if (socks.getQuantity() > socksInDB.getQuantity())
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public SocksDto outcomeOfSocks(SocksDto socksDto) {
+        Socks socks = socksRepository.
+                findSocksByColorAndCottonPart(socksDto.getColor().
+                        toLowerCase(), socksDto.getCottonPart()).get();
+        if (socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().
+                toLowerCase(), socksDto.getCottonPart()).isEmpty()) {
+            throw new ParametersNotFoundException("Not found position");
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            socks.setQuantity(socks.getQuantity() - socksDto.getQuantity());
+            socksRepository.save(socks);
         }
-
-        int oldQuantity = socksInDB.getQuantity();
-        socksInDB.setQuantity(oldQuantity - socks.getQuantity());
-        socksRepository.save(socksInDB);
-
-        //check that saved
-        socksOptional = socksRepository.findById(socksInDB.getId());
-        if (socksOptional.isPresent() && Objects.
-                equals(socksOptional.get().getQuantity(), socksInDB.getQuantity()))
-            return new ResponseEntity<>(HttpStatus.OK);
-        else
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return socksMapper.toSocksDto(socks);
     }
 
     @Override
-    public Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart) {
+    public Optional<String> getSocksAmount(String color, Operation operation, int cottonPart) {
         return switch (operation) {
             case MORE_THAN -> socksRepository.findQuantityByParamsMoreThan(color, cottonPart);
             case LESS_THAN -> socksRepository.findQuantityByParamsLessThan(color, cottonPart);

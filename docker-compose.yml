@@ -1,23 +1,25 @@
 version: '2'
 services:
-  app:
+  socks-app:
     image: 'socks:latest'
     ports:
-      - "8080:8080"
+      - ":80"
     build:
       context: .
-    container_name: app
+    container_name: socks-app
     depends_on:
-      - db
+      - postgres
     environment:
-      - DB_URL=jdbc:postgresql://db:5432/socks
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/socks'
+      - 'SPRING_DATASOURCE_USERNAME=postgres'
+      - 'SPRING_DATASOURCE_PASSWORD=postgres'
+      - 'SPRING_JPA_HIBERNATE_DDL_AUTO=validate'
 
-  db:
+  postgres:
     image: 'postgres:latest'
-    container_name: db
+    container_name: postgres-socks-db
+    ports:
+      - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=postgres'

@@ -4,17 +4,19 @@ import com.example.skypro.automation.of.sock.warehouse.accounting.model.Socks;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-
+@Repository
 public interface SocksRepository extends JpaRepository<Socks, Long> {
-    Optional<Socks> findSocksByColorAndCottonPart(String color, Integer cottonPart);
-    @Query("SELECT SUM (quantity) FROM socks_balance WHERE color = #{color} AND cotton_part > #{cottonPart}")
-    Optional<Integer> findQuantityByParamsMoreThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    Optional<Socks> findSocksByColorAndCottonPart(String color, int cottonPart);
+    @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart > :cottonPart")
+    Optional<String> findQuantityByParamsMoreThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
-    @Query("SELECT SUM (quantity) FROM socks_balance WHERE color = #{color} AND cotton_part < #{cottonPart}")
-    Optional<Integer> findQuantityByParamsLessThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart < :cottonPart")
+    Optional<String> findQuantityByParamsLessThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
-    @Query("SELECT SUM (quantity) FROM socks_balance WHERE color = #{color} AND cotton_part = #{cottonPart}")
-    Optional<Integer> findQuantityByParamsEqual(@Param("color") String color, @Param("cottonPart") int cottonPart);
+    @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart = :cottonPart")
+    Optional<String> findQuantityByParamsEqual(@Param("color") String color, @Param("cottonPart") int cottonPart);
+
 }

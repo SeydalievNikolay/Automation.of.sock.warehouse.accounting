@@ -8,13 +8,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: SERIAL
+                  type: BIGSERIAL
                   constraints:
                     primaryKey:  true
                     nullable:  false
               - column:
                   name: color
-                  type: VARCHAR (20)
+                  type: VARCHAR (25)
                   constraints:
                     nullable:  false
               - column:
