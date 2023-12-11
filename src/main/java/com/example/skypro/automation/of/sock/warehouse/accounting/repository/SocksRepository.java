@@ -9,7 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 @Repository
 public interface SocksRepository extends JpaRepository<Socks, Long> {
-    Optional<Socks> findSocksByColorAndCottonPart(String color, int cottonPart);
+    @Query("SELECT id, color, cotton_part, quantity FROM Socks WHERE color =:color AND cotton_part =:cottonPart LIMIT 1")
+    Optional<Socks> findSocksByColorAndCottonPart(@Param("color") String color, @Param("cottonPart") int cottonPart);
     @Query("SELECT SUM(u.quantity) FROM Socks u WHERE u.color = :color and u.cottonPart > :cottonPart")
     Optional<Integer> findQuantityByParamsMoreThan(@Param("color") String color, @Param("cottonPart") int cottonPart);
 
