@@ -10,7 +10,6 @@ import com.example.skypro.automation.of.sock.warehouse.accounting.service.SocksS
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,25 +48,28 @@ public class SocksServiceImpl implements SocksService {
                         toLowerCase(), socksDto.getCottonPart()).get();
         if (socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().
                 toLowerCase(), socksDto.getCottonPart()).isEmpty()) {
-            throw new ParametersNotFoundException("Not found position");
+            throw new ParametersNotFoundException("Not found position" + socks.getColor());
         } else {
             socks.setQuantity(socks.getQuantity() - socksDto.getQuantity());
             socksRepository.save(socks);
+        }
+        if (socks.getQuantity() - socksDto.getQuantity() < 0) {
+            throw new ParametersNotFoundException("Not found position" + socks.getQuantity());
         }
         return socksMapper.toSocksDto(socks);
     }
 
     @Override
     public Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart) {
+        if (cottonPart < 0 || cottonPart > 100) {
+            throw new ParametersNotFoundException("The cotton value is set incorrectly." +
+                    "The value must be an integer in the range from 0 to 100");
+        }
         return switch (operation) {
             case MORE_THAN -> socksRepository.findQuantityByParamsMoreThan(color, cottonPart);
             case LESS_THAN -> socksRepository.findQuantityByParamsLessThan(color, cottonPart);
             case EQUAL -> socksRepository.findQuantityByParamsEqual(color, cottonPart);
+            default ->  throw new ParametersNotFoundException("Operation is set incorrectly" + operation);
         };
-    }
-
-    @Override
-    public List<Socks> getAll() {
-        return socksRepository.findAll();
     }
 }
