@@ -44,7 +44,7 @@ public class Controller {
                     content = @Content(schema = @Schema(implementation = Socks.class))),
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
-    @GetMapping()
+    @GetMapping("/")
     public Optional<Integer> getSocksAmount(@RequestParam String color,
                                             @RequestParam Operation operation,
                                             @RequestParam int cottonPart){

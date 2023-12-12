@@ -48,10 +48,13 @@ public class SocksServiceImpl implements SocksService {
                         toLowerCase(), socksDto.getCottonPart()).get();
         if (socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().
                 toLowerCase(), socksDto.getCottonPart()).isEmpty()) {
-            throw new ParametersNotFoundException("Not found position");
+            throw new ParametersNotFoundException("Not found position" + socks.getColor());
         } else {
             socks.setQuantity(socks.getQuantity() - socksDto.getQuantity());
             socksRepository.save(socks);
+        }
+        if (socks.getQuantity() - socksDto.getQuantity() < 0) {
+            throw new ParametersNotFoundException("Not found position" + socks.getQuantity());
         }
         return socksMapper.toSocksDto(socks);
     }
