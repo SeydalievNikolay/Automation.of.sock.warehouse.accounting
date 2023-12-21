@@ -97,4 +97,16 @@ class ControllerIT {
                         jsonPath("$.quantity").value(0));
 
     }
+
+    @Test
+    void getSocksAmount_isOk() throws Exception {
+        Socks socks = constants.addDB();
+        Operation operation = Operation.EQUAL;
+
+        mockMvc.perform(get("/api/socks?color=green&operation=equal&cottonPart=90")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(status().isOk(),
+                        jsonPath("$.color").value(socks.getColor()),
+                        jsonPath("$.cottonPart").value(socks.getCottonPart()));
+    }
 }

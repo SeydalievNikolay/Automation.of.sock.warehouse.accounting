@@ -36,8 +36,8 @@ public class Controller {
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
     @PostMapping("/outcome")
-    public SocksDto outcomeOfSocks(@RequestBody SocksDto socksDto) {
-        return socksService.outcomeOfSocks(socksDto);
+    public void outcomeOfSocks(@RequestBody SocksDto socksDto) {
+        socksService.outcomeOfSocks(socksDto);
     }
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The request has been completed",
@@ -45,7 +45,7 @@ public class Controller {
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
     @GetMapping("/")
-    public Optional<Integer> getSocksAmount(@RequestParam String color,
+    public Integer getSocksAmount(@RequestParam String color,
                                             @RequestParam Operation operation,
                                             @RequestParam int cottonPart){
         return socksService.getSocksAmount(color, operation, cottonPart);

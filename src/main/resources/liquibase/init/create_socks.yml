@@ -22,8 +22,10 @@ databaseChangeLog:
                   type: INT
                   constraints:
                     nullable:  false
+                    check: "[0, 'infinity']"
               - column:
                   name: quantity
                   type: INT
                   constraints:
                     nullable:  false
+                    check: "[0, 'infinity']"
