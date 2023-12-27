@@ -10,7 +10,9 @@ import com.example.skypro.automation.of.sock.warehouse.accounting.service.SocksS
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -31,8 +33,7 @@ public class SocksServiceImpl implements SocksService {
 
         Socks socks;
         if (optional.isPresent()) {
-            socks = socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().toLowerCase(),
-                    socksDto.getCottonPart()).orElseThrow();
+            socks = optional.get();
             socks.setQuantity(socks.getQuantity() + socksDto.getQuantity());
         } else {
             socks = socksMapper.toSocksEntity(socksDto);
@@ -42,34 +43,51 @@ public class SocksServiceImpl implements SocksService {
     }
 
     @Override
-    public SocksDto outcomeOfSocks(SocksDto socksDto) {
-        Socks socks = socksRepository.
-                findSocksByColorAndCottonPart(socksDto.getColor().
-                        toLowerCase(), socksDto.getCottonPart()).get();
-        if (socksRepository.findSocksByColorAndCottonPart(socksDto.getColor().
-                toLowerCase(), socksDto.getCottonPart()).isEmpty()) {
-            throw new ParametersNotFoundException("Not found position" + socks.getColor());
-        } else {
-            socks.setQuantity(socks.getQuantity() - socksDto.getQuantity());
-            socksRepository.save(socks);
-        }
-        if (socks.getQuantity() - socksDto.getQuantity() < 0) {
-            throw new ParametersNotFoundException("Not found position" + socks.getQuantity());
-        }
-        return socksMapper.toSocksDto(socks);
+    public void outcomeOfSocks(SocksDto socksDto) {
+        socksRepository.findSocksByColorAndCottonPart(socksDto.getColor(),
+                socksDto.getCottonPart()).ifPresentOrElse
+                (sock -> deleteCertainQuantityOfSocks(sock, socksDto.getQuantity()),
+                        () -> {
+                            throw new ParametersNotFoundException("Not found socks with such parameters");
+                        }
+                );
     }
 
     @Override
-    public Optional<Integer> getSocksAmount(String color, Operation operation, int cottonPart) {
-        if (cottonPart < 0 || cottonPart > 100) {
-            throw new ParametersNotFoundException("The cotton value is set incorrectly." +
-                    "The value must be an integer in the range from 0 to 100");
-        }
-        return switch (operation) {
-            case MORE_THAN -> socksRepository.findQuantityByParamsMoreThan(color, cottonPart);
-            case LESS_THAN -> socksRepository.findQuantityByParamsLessThan(color, cottonPart);
-            case EQUAL -> socksRepository.findQuantityByParamsEqual(color, cottonPart);
-            default ->  throw new ParametersNotFoundException("Operation is set incorrectly" + operation);
+    public Integer getSocksAmount(String color, Operation operation, int cottonPart) {
+        List<Socks> socksList = socksRepository.findSocksByColor(color);
+        int result = 0;
+        List<Integer> quantity = switch (operation) {
+            case MORE_THAN -> socksList.stream()
+                    .filter(socks -> socks.getCottonPart() > cottonPart)
+                    .map(Socks::getQuantity)
+                    .collect(Collectors.toList());
+            case LESS_THAN -> socksList.stream()
+                    .filter(socks -> socks.getCottonPart() < cottonPart)
+                    .map(Socks::getQuantity)
+                    .collect(Collectors.toList());
+            case EQUAL -> socksList.stream()
+                    .filter(socks -> socks.getCottonPart() == cottonPart)
+                    .map(Socks::getQuantity)
+                    .collect(Collectors.toList());
         };
+
+        for (Integer a : quantity)
+            result += a;
+        return result;
+    }
+
+    @Override
+    public void deleteCertainQuantityOfSocks(Socks socks, int quantity) {
+        Integer quantityValueFromDB = socks.getQuantity();
+        if (quantityValueFromDB < quantity) {
+            throw new ParametersNotFoundException("There is no such amount of socks in stock");
+        }
+        if (quantityValueFromDB.equals(quantity)) {
+            socksRepository.delete(socks);
+        } else {
+            socks.setQuantity(quantityValueFromDB - quantity);
+            socksRepository.save(socks);
+        }
     }
 }

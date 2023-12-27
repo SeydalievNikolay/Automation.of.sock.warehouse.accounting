@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
+import ru.seydalievnikolay.springbootstartercollectingmetrics.service.LogMetrics;
 
 import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/socks")
 public class Controller {
@@ -26,6 +26,7 @@ public class Controller {
                     content = @Content(schema = @Schema(implementation = Socks.class))),
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
+    @LogMetrics("/income")
     @PostMapping("/income")
     public SocksDto incomeOfSocks(@RequestBody SocksDto socksDto) {
         return socksService.incomeOfSocks(socksDto);
@@ -35,19 +36,21 @@ public class Controller {
                     content = @Content(schema = @Schema(implementation = Socks.class))),
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
+    @LogMetrics("/outcome")
     @PostMapping("/outcome")
-    public SocksDto outcomeOfSocks(@RequestBody SocksDto socksDto) {
-        return socksService.outcomeOfSocks(socksDto);
+    public void outcomeOfSocks(@RequestBody SocksDto socksDto) {
+        socksService.outcomeOfSocks(socksDto);
     }
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The request has been completed",
                     content = @Content(schema = @Schema(implementation = Socks.class))),
             @ApiResponse(responseCode = "400", description = "The request parameters are missing or have an incorrect format"),
             @ApiResponse(responseCode = "500", description = "An error occurred that is independent of the caller")})
+    @LogMetrics("/")
     @GetMapping("/")
-    public Optional<Integer> getSocksAmount(@RequestParam String color,
-                                            @RequestParam Operation operation,
-                                            @RequestParam int cottonPart){
+    public Integer getSocksAmount(@RequestParam String color,
+                                  @RequestParam Operation operation,
+                                  @RequestParam int cottonPart){
         return socksService.getSocksAmount(color, operation, cottonPart);
 
     }

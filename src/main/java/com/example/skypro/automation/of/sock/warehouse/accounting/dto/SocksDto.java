@@ -12,6 +12,7 @@ import javax.validation.constraints.Min;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SocksDto {
+    private long id;
     private String color;
     @Min(0)
     @Max(100)
